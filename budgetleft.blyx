@@ -1,0 +1,41 @@
+fn budgetleft_max2(a: f64, b: f64) -> f64 {
+    if a > b {
+        return a;
+    }
+    b
+}
+
+fn budgetleft_floorpos(value: f64) -> f64 {
+    value - value % 1.0
+}
+
+fn budgetleft_finite(values: vector) -> bool {
+    let mut i = 0;
+    while i < len(values) {
+        let value = at(values, i);
+        if !(value - value == 0.0) {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+fn budgetleft_compute(bad: f64, total: f64, allowance: f64) -> vector {
+    if bad > total {
+        return [];
+    }
+    let capacity = budgetleft_floorpos(total * allowance);
+    [capacity, budgetleft_max2(0.0, capacity - bad), budgetleft_max2(0.0, bad - capacity)]
+}
+
+// Account for whole allowed failures in an observed window.
+// Returns [whole failures permitted, remaining, excess]. Rounds the nonnegative product of sample count and allowance down.
+pub fn budgetleft_events(bad: f64, total: f64, allowance: f64) -> vector {
+    if !(bad >= 0.0 && bad <= 9007199254740991.0 && bad % 1.0 == 0.0) { return []; }
+    if !(total >= 0.0 && total <= 9007199254740991.0 && total % 1.0 == 0.0) { return []; }
+    if !(allowance >= 0.0 && allowance <= 1.0) { return []; }
+    let result = budgetleft_compute(bad, total, allowance);
+    if !budgetleft_finite(result) { return []; }
+    result
+}
